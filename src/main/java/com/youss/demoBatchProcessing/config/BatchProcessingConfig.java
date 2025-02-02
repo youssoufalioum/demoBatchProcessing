@@ -2,10 +2,9 @@ package com.youss.demoBatchProcessing.config;
 
 import com.youss.demoBatchProcessing.entities.Transactions;
 import com.youss.demoBatchProcessing.repositories.TransactionsRepository;
-//import com.youss.demoBatchProcessing.services.TransactionsFieldSetMapper;
+import com.youss.demoBatchProcessing.services.TransactionsFieldSetMapper;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -13,12 +12,11 @@ import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -37,7 +35,7 @@ public class BatchProcessingConfig {
     @Bean
     public FlatFileItemReader<Transactions> itemReader() {
         return new FlatFileItemReaderBuilder<Transactions>()
-                .resource(new FileSystemResource("src/main/resources/transactions.csv"))
+                .resource(new ClassPathResource("transactions.csv"))
                 .name("transactionsReader")
                 .linesToSkip(1)
                 .lineMapper(lineMapper())
@@ -60,7 +58,7 @@ public class BatchProcessingConfig {
     @Bean
     public Step importTransactionsDataStep() {
         return new StepBuilder("importTransactionsData", jobRepository)
-                .<Transactions,Transactions>chunk(10, platformTransactionManager)
+                .<Transactions, Transactions>chunk(10, platformTransactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())
                 .writer(itemWriter())
@@ -80,11 +78,11 @@ public class BatchProcessingConfig {
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
         lineTokenizer.setStrict(false);
-        lineTokenizer.setNames("transactionId","accountNumber","accountHolderName","transactionDate","transactionType","amount","transactionStatus");
+        lineTokenizer.setNames("transactionId", "accountNumber", "accountHolderName", "transactionDate", "transactionType", "amount", "transactionStatus");
 
-        BeanWrapperFieldSetMapper<Transactions> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(Transactions.class);
-        //TransactionsFieldSetMapper fieldSetMapper = new TransactionsFieldSetMapper();
+        //BeanWrapperFieldSetMapper<Transactions> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        //fieldSetMapper.setTargetType(Transactions.class);
+        TransactionsFieldSetMapper fieldSetMapper = new TransactionsFieldSetMapper();
 
         lineMapper.setLineTokenizer(lineTokenizer);
         lineMapper.setFieldSetMapper(fieldSetMapper);
