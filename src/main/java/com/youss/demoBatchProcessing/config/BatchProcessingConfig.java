@@ -35,7 +35,7 @@ public class BatchProcessingConfig {
     @Bean
     public FlatFileItemReader<Transactions> itemReader() {
         return new FlatFileItemReaderBuilder<Transactions>()
-                .resource(new ClassPathResource("transactions.csv"))
+                .resource(new ClassPathResource("transactions2.csv"))
                 .name("transactionsReader")
                 .linesToSkip(1)
                 .lineMapper(lineMapper())
